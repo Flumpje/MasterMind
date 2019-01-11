@@ -77,6 +77,8 @@ ISR(PCINT0_vect)
 	if (SWITCH_PRESSED)
 	{
 		generateCode();
+		set_secret_code(secret_code);
+		attempts = 12;
 	}
 }
 
@@ -96,14 +98,6 @@ int main(void)
 	
 	DDRB |= (1<<DDB3);		// Pin b3 is output
 	DDRB &= ~(1<<DDB7);		// pin b7 is input
-	
-    // Set the secret code
-    // TODO: Just one secret code is not very challenging
-    
-	secret_code[0] = 1;
-    secret_code[1] = 1;
-    secret_code[2] = 2;
-    secret_code[3] = 2;
     
 	// set count for random number
 	int count = 0;
@@ -133,6 +127,22 @@ int main(void)
 		count++;
 		srand(count);
 		
+		mm_result = check_secret_code(user_code);
+		
+		if (attempts)
+		{
+			TransmitString("Enter your code");
+			ReceiveString(user_code);
+			attempts--;
+			
+		} else
+		{
+			TransmitString("You have lost");
+		}
+		
+		mm_result = check_secret_code(user_code);
+		
+		
 		
     }
 }
@@ -142,8 +152,8 @@ void generateCode(void)
 	secret_code[1] = '1' + rand()%7;
 	secret_code[2] = '1' + rand()%7;
 	secret_code[3] = '1' + rand()%7;
-	secret_code[4] = '\n';
-	TransmitString(secret_code);
+	//secret_code[4] = '\n';
+	//TransmitString(secret_code);
 	secret_code[4] = NULL;
 	
 	return;
