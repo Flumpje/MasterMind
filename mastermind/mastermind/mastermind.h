@@ -33,6 +33,4 @@ void        get_secret_code(unsigned char *code);
 void        set_secret_code(const unsigned char *code);
 mm_result_t check_secret_code(const unsigned char *code);
 
-int attempts = 12;
-
 #endif /* _MASTERMIND_H_ */
