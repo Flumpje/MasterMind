@@ -52,6 +52,8 @@ ISR(PCINT0_vect)
 
 int main(void)
 {
+	int start = 1;
+	
 	// initialize the uart
 	InitUART(MYUBRR);
         
@@ -85,36 +87,35 @@ int main(void)
     user_code[3] = '4';
 	user_code[4] = NULL;
     
-    // Check the user code against the secret code
-    mm_result = check_secret_code(user_code);
-    /*
-	if(mm_result.correct_num_and_pos == 4)
-	{
-		LED_ON;
-	}
-	*/
-    // Stop executing
-    // TODO: Give the user 12 opportunities
-    // TODO: Start over once a game has finished
     while (1) 
     {
 		char byte2send = '0';
 		
-		
 		srand(count);
+		/*
+		if (start)
+		{
+			TransmitString("The game has begun\r\n");
+			_delay_ms(100);
+			start = 0;
+		}
 		
+		*/
+		
+		
+		// debug info
 		user_code[4] = NULL;
-		
 		TransmitString(secret_code);
 		TransmitString(user_code);
 		
+		// Check the user code against the secret code
 		mm_result = check_secret_code(user_code);
 		
 		byte2send = mm_result.correct_num_and_pos + '0';
 		TransmitByte(byte2send);
 		byte2send = mm_result.correct_num + '0';
 		TransmitByte(byte2send);
-		
+		_delay_ms(100);
 		
 		if (attempt)
 		{
@@ -125,14 +126,11 @@ int main(void)
 				TransmitString("");
 				TransmitString("\r\nYou are my Mastermind\r\n");
 				_delay_ms(100);
-				TransmitString("Press the switch to reset the game\r\n");
+				TransmitString("Press the button to reset the game\r\n");
 				_delay_ms(100);
-				TransmitString("Or press enter to refresh\r\n");
-				_delay_ms(100);
-				
+				wait = 1;
 				while(wait);
-				
-				generateCode();
+
 			} else
 			{
 				TransmitString("Enter your code\r\n");
@@ -145,11 +143,12 @@ int main(void)
 		{
 			TransmitString("You have lost\r\n");
 			TransmitString("Press the switch to reset the game\r\n");
+			_delay_ms(100);
+			//TransmitString("Press the button to reset the game\r\n");
+			//_delay_ms(100);
+			wait = 1;
+			while(wait);
 		}
-		
-		//mm_result = check_secret_code(user_code);
-		
-		//_delay_ms(100);
 		
     }
 }
@@ -160,8 +159,9 @@ void generateCode(void)
 	secret_code[2] = '1' + rand()%7;
 	secret_code[3] = '1' + rand()%7;
 	secret_code[4] = NULL;
-	//TransmitString(secret_code);
-	//secret_code[4] = NULL;
+	
+	TransmitString("\r\nThe game has been reset\r\n");
+	_delay_ms(100);
 	
 	return;
 }
